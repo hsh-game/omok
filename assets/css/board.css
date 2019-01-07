@@ -1,0 +1,71 @@
+*::selection {
+  background: none;
+}
+
+body {
+  background: #323232;
+  color: white;
+  text-align: center;
+}
+
+a {
+  cursor: pointer;
+  color: #7ad7ff;
+  text-decoration: underline;
+}
+
+#board {
+  max-width: 750px;
+  max-width: 85vmin;
+}
+
+@media screen and (min-width: 1020px) {
+  #half, #board {
+    display: inline-block;
+    width: 47.5%;
+    vertical-align: top;
+  }
+}
+
+#turn-alert,
+#how-to-play {
+  display: none;
+}
+
+#how-to-play {
+  max-width: 450px;
+  margin: 1rem auto;
+}
+
+#stone-color-select {
+  width: 90%;
+  margin: 1rem auto;
+  border: 3px solid #b5b5b5;
+}
+
+#game-explain {
+  display: none;
+  width: 90%;
+}
+
+#icons {
+  max-width: 250px;
+  margin: 1rem auto;
+}
+
+#icons > img {
+  cursor: pointer;
+  display: inline-block;
+  width: 30%;
+  margin: .5rem;
+  border-radius: 1rem;
+}
+
+#version {
+  max-width: 150px;
+  padding: .5rem;
+  margin: auto;
+  border-radius: 1rem;
+  background: #e2e2e2;
+  color: black;
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>AI Omok</title>
+
+		<link rel="stylesheet" href="/assets/css/reset.css">
+		<link rel="stylesheet" href="assets/css/board.css">
+		<link rel="stylesheet" href="assets/css/button.css">
+
+		<script src="/assets/js/query.min.js"></script>
+		<script src="assets/js/game.js"></script>
+		<script src="assets/js/AI.js"></script>
+		<script src="assets/js/drawBoard.js"></script>
+		<script src="assets/js/select.js"></script>
+	</head>
+	<body>
+		<br>
+		<canvas id="board" width="1000" height="1000"></canvas>
+		<div id="half">
+			<div id="stone-color-select">
+				<p>선공 또는 후공을 선택하십시오.</p>
+				<div id="select-black" class="button">흑돌(선공)</div>
+				<div id="select-white" class="white button">백돌(후공)</div>
+			</div>
+			<div id="control-keys">
+				<div class="fake move button"></div>
+				<div class="move button" id="move-up-btn"></div>
+				<div class="fake move button"></div>
+				<div class="move button" id="move-left-btn"></div>
+				<div class="move button" id="set-btn"></div>
+				<div class="move button" id="move-right-btn"></div>
+				<div class="fake move button"></div>
+				<div class="move button" id="move-down-btn"></div>
+				<div class="fake move button"></div>
+			</div>
+			<p id="game-explain">
+				위의 버튼 또는 키보드의 방향키와 엔터를 이용해 조작하세요!
+			</p>
+			<p>
+				이 게임은 <a href="https://namu.wiki/w/렌주" target="_blank">렌주룰</a>을 따릅니다.
+			</p>
+			<div id="version"></div>
+			<div id="icons">
+				<img
+					src="assets/img/iconmonstr-github-2-240.png"
+					alt="github"
+					style="background:white"
+					onclick="window.open('https://github.com/hsh-game/omok', '_blank')">
+			</div>
+		</div>
+
+		<br><br><br><br><br><br>
+	</body>
+</html>
