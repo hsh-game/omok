@@ -8,8 +8,6 @@
 
 //오목판의 오목돌들이 정의된 2차원 배열을 인자로 필요로 한다.
 function AI(color, blocks) {
-  const X = 0, Y = 1;
-
   let blockAmount = 0,
       priority = [],
       max = -Infinity,
@@ -19,18 +17,16 @@ function AI(color, blocks) {
 
   //15*15인 2차원 배열을 생성한다.
   for (x = 0; x < 15; x++) {
-    priority[x] = [];
-    for (y = 0; y < 15; y++)
-      priority[x][y] = 0;
+    priority[x] = Array(15).fill(0);
   }
 
   //이미 돌이 놓인 곳의 우선도를 음의 무한대로 한다.
   for (x = 0; x < 15; x++)
   for (y = 0; y < 15; y++)
-    if (blocks[x][y]) {
-      blockAmount++;
-      priority[x][y] = -Infinity;
-    }
+  if (blocks[x][y]) {
+    blockAmount++;
+    priority[x][y] = -Infinity;
+  }
 
   if (blockAmount >= 15 * 15) {
     alert("오목판이 모두 차서 AI가 선택할 수 없습니다.");
