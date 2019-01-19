@@ -141,6 +141,7 @@ window.addEventListener('DOMContentLoaded', () => {
       default:
         return;
     }
+    e.preventDefault();
     checkFocus();
   }, false);
 }, false);
