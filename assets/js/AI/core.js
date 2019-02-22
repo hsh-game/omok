@@ -29,7 +29,7 @@ function AI(color, blocks) {
   }
 
   if (blockAmount >= 15 * 15) {
-    alert("오목판이 모두 차서 AI가 선택할 수 없습니다.");
+    // alert("오목판이 모두 차서 AI가 선택할 수 없습니다.");
     throw new Error("Block exceeded");
   }
 
