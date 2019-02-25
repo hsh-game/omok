@@ -29,7 +29,7 @@ function AI(color, blocks) {
   }
 
   if (blockAmount >= 15 * 15) {
-    // alert("오목판이 모두 차서 AI가 선택할 수 없습니다.");
+    alert("오목판이 모두 차서 AI가 선택할 수 없습니다.");
     throw new Error("Block exceeded");
   }
 
@@ -60,8 +60,8 @@ function AI(color, blocks) {
   //양 끝 수의 우선도를 올린다.
   //상대의 돌일 경우 8, 자신의 돌일 경우 10.
   for (x = 0; x < 15; x++)
-  for (y = 0; y < 15; y++) {
-    if (!blocks[x][y]) continue;
+  for (y = 0; y < 15; y++)
+  if (blocks[x][y]) {
     nowColor = blocks[x][y];
     for (t = -1; t < 2; t++)
     for (s = -1; s < 2; s++) {
@@ -83,8 +83,8 @@ function AI(color, blocks) {
   //유효하지 않는 자신의 3목 양쪽의 우선도를 5만큼 올린다.
   //유효한 상대의 돌일 경우 35, 자신의 돌일 경우 30.
   for (x = 0; x < 15; x++)
-  for (y = 0; y < 15; y++) {
-    if (!blocks[x][y]) continue;
+  for (y = 0; y < 15; y++)
+  if (blocks[x][y]) {
     nowColor = blocks[x][y];
     [
       [ 1, -1 ],
@@ -93,24 +93,30 @@ function AI(color, blocks) {
       [ 1,  0 ],
       [ 0,  1 ],
     ].forEach(arr => {
-      let q1 = [1,2].every(e => {
-            const PX = x + e * arr[0],
-                  PY = y + e * arr[1];
-            return game.stone.is(nowColor, PX, PY, blocks);
-          }),
-          q2 = [-1,-2,3,4].every(e => {
-            const PX = x + e * arr[0],
-                  PY = y + e * arr[1];
-            return !game.stone.isStone(PX, PY)
-                  && blocks[PX]
-                  && blocks[PX][PY] === EMPTY;
-          });
+      const conditions = [
+        [1,2].every(e => {
+          const PX = x + e * arr[0],
+                PY = y + e * arr[1];
+          return game.stone.is(nowColor, PX, PY, blocks);
+        }),
 
-      if (q1 && q2) {
-        const p = q2 ? (nowColor === color? 35 : 30)
-                     : (nowColor === color? 5  :  0);
-        priority[x - arr[0]][y - arr[1]] += p;
-        priority[x + 3 * arr[0]][y + 3 * arr[1]] += p;
+        [-1,-2,3,4].every(e => {
+          const PX = x + e * arr[0],
+                PY = y + e * arr[1];
+          return !game.stone.isStone(PX, PY)
+                && blocks[PX]
+                && blocks[PX][PY] === EMPTY;
+        })
+      ];
+
+      if (conditions.every(q => q)) {
+        const p = nowColor === color? 35 : 30;
+        [
+          [x - arr[0], y - arr[1]],
+          [x + 3 * arr[0]], [y + 3 * arr[1]]
+        ].forEach(
+          ([PX, PY]) => priority[PX][PY] += p
+        );
       }
     });
   }
@@ -122,8 +128,8 @@ function AI(color, blocks) {
   for (x = 0; x < 15; x++)
   for (y = 0; y < 15; y++)
   for (t = -1; t < 2; t++)
-  for (s = -1; s < 2; s++) {
-    if (!blocks[x][y] || !(t || s)) continue;
+  for (s = -1; s < 2; s++)
+  if (blocks[x][y] && (t || s)) {
     nowColor = blocks[x][y];
     if (
       [-1,4].some(e => {
@@ -142,9 +148,7 @@ function AI(color, blocks) {
       [
         [ x + 4 * t, y + 4 * s ],
         [ x - 1 * t, y - 1 * s ]
-      ].forEach(point => {
-        const PX = point[X],
-              PY = point[Y];
+      ].forEach(([PX, PY]) => {
         if (blocks[PX])
           priority[PX][PY] += p;
       });
@@ -153,17 +157,15 @@ function AI(color, blocks) {
 
   //승리 확정수 방어2
   for (x = 0; x < 15; x++)
-  for (y = 0; y < 15; y++) {
-    if (!blocks[x][y]) continue;
+  for (y = 0; y < 15; y++)
+  if (blocks[x][y]) {
     nowColor = blocks[x][y];
     [
       [1,-1],
       [1, 0],
       [1, 1],
       [0, 1]
-    ].forEach(arr => {
-      const DX = arr[0],
-            DY = arr[1];
+    ].forEach(([DX, DY]) => {
       let emptyCount = 0,
           emptyCoord = [-1,-1];
       for (t = 1; t < 4; t++) {
@@ -181,8 +183,7 @@ function AI(color, blocks) {
         }
       }
       if (emptyCount === 1) {
-        const PX = emptyCoord[X],
-              PY = emptyCoord[Y],
+        const [PX, PY] = emptyCoord,
               p = (color !== nowColor)? 1500 : 2000;
         priority[PX][PY] += p;
       }
