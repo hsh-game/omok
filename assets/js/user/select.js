@@ -93,46 +93,37 @@ window.addEventListener('DOMContentLoaded', () => {
   }, false);
 
   function checkFocus() {
-    if (user.focus.coord[1] < 0) user.focus.coord[1] = 0;
-    if (user.focus.coord[0] < 0) user.focus.coord[0] = 0;
-    if (user.focus.coord[1] > 14) user.focus.coord[1] = 14;
-    if (user.focus.coord[0] > 14) user.focus.coord[0] = 14;
+    user.focus.coord.forEach(
+      (val, i, coord) => coord[i] = Math.min(14, Math.max(val, 0))
+    );
     user.focus.set();
   }
 
-  $('#move-up-btn').addEventListener('click', () => {
-    user.focus.coord[1]--;
-    checkFocus();
-  }, false);
-
-  $('#move-down-btn').addEventListener('click', () => {
-    user.focus.coord[1]++;
-    checkFocus();
-  }, false);
-
-  $('#move-left-btn').addEventListener('click', () => {
-    user.focus.coord[0]--;
-    checkFocus();
-  }, false);
-
-  $('#move-right-btn').addEventListener('click', () => {
-    user.focus.coord[0]++;
-    checkFocus();
-  }, false);
+  [
+    ['up',    Y, -1],
+    ['down',  Y, +1],
+    ['left',  X, -1],
+    ['right', X, +1]
+  ].forEach(([dir, target, change]) => {
+    $(`#move-${dir}-btn`).addEventListener('click', () => {
+      user.focus.coord[target] += change;
+      checkFocus();
+    }, false);
+  });
 
   window.addEventListener('keydown', e => {
     switch (e.key) {
       case 'ArrowDown':
-        user.focus.coord[1]++;
+        user.focus.coord[Y]++;
         break;
       case 'ArrowUp':
-        user.focus.coord[1]--;
+        user.focus.coord[Y]--;
         break;
       case 'ArrowLeft':
-        user.focus.coord[0]--;
+        user.focus.coord[X]--;
         break;
       case 'ArrowRight':
-        user.focus.coord[0]++;
+        user.focus.coord[X]++;
         break;
       case ' ':
       case 'Enter':

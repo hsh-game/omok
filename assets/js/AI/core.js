@@ -9,23 +9,49 @@
 //오목판의 오목돌들이 정의된 2차원 배열을 인자로 필요로 한다.
 function AI(color, blocks) {
   let blockAmount = 0,
-      priority = [],
+      priority = Array(15).fill().map(() => Array(15).fill(0)),
       max = -Infinity,
       maxCoords = [],
+      reward = [0,0],
       x, y, t, s,
       nowColor;
 
-  //15*15인 2차원 배열을 생성한다.
-  for (x = 0; x < 15; x++) {
-    priority[x] = Array(15).fill(0);
+  function isMyColor() {
+    return nowColor === color;
+  }
+
+  function setReward(a, b) {
+    reward = isNaN(b)? [a, a] : [a, b];
+  }
+
+  function getReward() {
+    //0번은 상대의 돌에 대한 우선도(보상),
+    //1번은 자신의 돌에 대한 우선도(보상).
+    return isMyColor()? reward[0] : reward[1];
+  }
+
+  function feed(targetX, targetY) {
+    if (Array.isArray(targetX)) {
+      if (targetX.every(Array.isArray))
+        targetX.forEach(feed);
+      else
+        feed(...targetX);
+      return;
+    }
+
+    if (
+      priority[targetX]
+      && targetY in priority[targetX]
+    ) priority[targetX][targetY] += getReward();
   }
 
   //이미 돌이 놓인 곳의 우선도를 음의 무한대로 한다.
+  setReward(-Infinity);
   for (x = 0; x < 15; x++)
   for (y = 0; y < 15; y++)
   if (blocks[x][y]) {
     blockAmount++;
-    priority[x][y] = -Infinity;
+    feed(x, y);
   }
 
   if (blockAmount >= 15 * 15) {
@@ -34,57 +60,75 @@ function AI(color, blocks) {
   }
 
   //금수인 지점의 우선도를 음의 무한대로 한다.
-  game.getBanedPosition(color).forEach(banedCoord => {
-    const BX = banedCoord[X],
-          BY = banedCoord[Y];
-    priority[BX][BY] = -Infinity;
-  });
+  setReward(-Infinity);
+  game.getBanedPosition(color)
+      .forEach(feed);
 
   //놓인 돌이 없거나 1개이면 바둑판 중앙의 우선도를 1000만큼 높힌다.
   if (blockAmount < 2)
     priority[7][7] += 1000;
 
   //모든 돌의 8방향에 우선도를 1만큼 높힌다.
+  setReward(1);
   for (x = 0; x < 15; x++)
   for (y = 0; y < 15; y++)
   if (blocks[x][y])
   for (t = -1; t < 2; t++)
-  for (s = -1; s < 2; s++) {
-    const PX = x + t,
-          PY = y + s;
-    if (game.stone.is(EMPTY, PX, PY))
-      priority[PX][PY]++;
-  }
+  for (s = -1; s < 2; s++)
+    feed(x + t, y + s);
 
   //공격 가능한 2목을 방어 또는 공격한다.
   //양 끝 수의 우선도를 올린다.
-  //상대의 돌일 경우 8, 자신의 돌일 경우 10.
+  //상대의 돌일 경우 18, 자신의 돌일 경우 20.
+  setReward(18, 20);
   for (x = 0; x < 15; x++)
   for (y = 0; y < 15; y++)
   if (blocks[x][y]) {
+    //이어진 2목
+    //XX{O}OXXX
     nowColor = blocks[x][y];
     for (t = -1; t < 2; t++)
     for (s = -1; s < 2; s++) {
       if (
-        (t || s) && [-1,-2,2,3,4].every(e => {
-          const PX = x + e * t,
-                PY = y + e * s;
-          return game.stone.is(EMPTY, PX, PY);
-        }) && game.stone.is( nowColor, x +  t, y + s )
-      ) {
-        const p = (color !== nowColor)? 8 : 10;
-        priority[x + 2 * t][y + 2 * s] += p;
-      }
+        (t || s)
+        && [-1,-2,2,3,4].map(e => [
+          x + e * t,
+          y + e * s
+        ]).every(
+          ([PX, PY]) => game.stone.is(EMPTY, PX, PY)
+        )
+        && game.stone.is( nowColor, x + t, y + s)
+      ) feed(x + 2 * t, y + 2 * s);
     }
+  } else {
+    //끊어진 2목
+    //XXO{X}OXX
+    [
+      [-1,  0],
+      [-1, -1],
+      [ 0, -1],
+      [ 1, -1]
+    ].forEach(([DX, DY]) => {
+      if (
+        (nowColor = game.stone.isStone(x + DX, y + DY))
+        && game.stone.is(nowColor, x - DX, y - DY)
+        && [2,3,-2,-3].every(
+          e => game.stone.is(EMPTY, x + e * DX , y + e * DY)
+        )
+      ) feed(x, y);
+    });
   }
 
   //3목을 방어 또는 공격한다.
   //유효한 3목의 양 끝 수의 우선도를 올린다.
   //유효하지 않는 자신의 3목 양쪽의 우선도를 5만큼 올린다.
   //유효한 상대의 돌일 경우 35, 자신의 돌일 경우 30.
+  setReward(35, 30);
   for (x = 0; x < 15; x++)
   for (y = 0; y < 15; y++)
   if (blocks[x][y]) {
+    //이어진 3목
+    //XX{O}OOXX
     nowColor = blocks[x][y];
     [
       [ 1, -1 ],
@@ -92,67 +136,72 @@ function AI(color, blocks) {
       [ 1,  1 ],
       [ 1,  0 ],
       [ 0,  1 ],
-    ].forEach(arr => {
+    ].forEach(([AX, AY]) => {
       const conditions = [
-        [1,2].every(e => {
-          const PX = x + e * arr[0],
-                PY = y + e * arr[1];
-          return game.stone.is(nowColor, PX, PY, blocks);
-        }),
+        [1,2].map(e => [
+          x + e * AX,
+          y + e * AY
+        ]).every(
+          ([PX, PY]) => game.stone.is(nowColor, PX, PY, blocks)
+        ),
 
-        [-1,-2,3,4].every(e => {
-          const PX = x + e * arr[0],
-                PY = y + e * arr[1];
-          return !game.stone.isStone(PX, PY)
-                && blocks[PX]
-                && blocks[PX][PY] === EMPTY;
-        })
+        [-1,-2,3,4].map(e => [
+          x + e * AX,
+          y + e * AY
+        ]).every(
+          ([PX, PY]) => game.stone.is(EMPTY, PX, PY)
+        )
       ];
 
-      if (conditions.every(q => q)) {
-        const p = nowColor === color? 35 : 30;
-        [
-          [x - arr[0], y - arr[1]],
-          [x + 3 * arr[0]], [y + 3 * arr[1]]
-        ].forEach(
-          ([PX, PY]) => priority[PX][PY] += p
-        );
-      }
+      if (conditions.every(q => q))
+        feed([
+          [x - AX,     y - AY],
+          [x + 3 * AX, y + 3 * AY]
+        ]);
     });
+  } else {
+    //끊어진 3목
+    //XO{X}OOX
+    for (t = -1; t < 2; t++)
+    for (s = -1; s < 2; s++) {
+      const getPoint = e => [x + e * t, y + e * s];
+      if (
+        (t || s)
+        && (nowColor = game.stone.isStone(x - t, y - s))
+        && [1,2].map(getPoint).every(
+          ([PX,PY]) => game.stone.is(nowColor, PX, PY)
+        )
+        && [-2,3].map(getPoint).every(
+          ([PX,PY]) => game.stone.is(EMPTY, PX, PY)
+        )
+      ) feed(x, y);
+    }
   }
 
   //승리 확정수를 방어 또는 공격한다.
   //해당 수의 우선도를 상대일 경우 1500,
   //자신일 경우 2000 만큼 올린다.
   //승리 확정수 방어 1
-  for (x = 0; x < 15; x++)
-  for (y = 0; y < 15; y++)
+  setReward(1500, 2000);
+  for (x = 1; x < 13; x++)
+  for (y = 1; y < 13; y++)
   for (t = -1; t < 2; t++)
-  for (s = -1; s < 2; s++)
-  if (blocks[x][y] && (t || s)) {
+  for (s = -1; s < 2; s++) {
+    const getPoint = e => [x + e * t, y + e * s];
     nowColor = blocks[x][y];
     if (
-      [-1,4].some(e => {
-        const PX = x + e * t,
-              PY = y + e * s;
-        return !game.stone.isStone(PX, PY)
-              && blocks[PX]
-              && blocks[PX][PY] === EMPTY;
-      }) && [1,2,3].every(e => {
-        const PX = x + e * t,
-              PY = y + e * s;
-        return game.stone.is(nowColor, PX, PY);
-      })
-    ) {
-      const p = (color !== nowColor)? 1500 : 2000;
-      [
-        [ x + 4 * t, y + 4 * s ],
-        [ x - 1 * t, y - 1 * s ]
-      ].forEach(([PX, PY]) => {
-        if (blocks[PX])
-          priority[PX][PY] += p;
-      });
-    }
+      blocks[x][y]
+      && (t || s)
+      && [-1,4].map(getPoint).some(
+        ([PX,PY]) => game.stone.is(EMPTY, PX, PY)
+      )
+      && [1,2,3].map(getPoint).every(
+        ([PX,PY]) => game.stone.is(nowColor, PX, PY)
+      )
+    ) feed([
+      [ x + 4 * t, y + 4 * s ],
+      [ x - 1 * t, y - 1 * s ]
+    ]);
   }
 
   //승리 확정수 방어2
@@ -168,6 +217,7 @@ function AI(color, blocks) {
     ].forEach(([DX, DY]) => {
       let emptyCount = 0,
           emptyCoord = [-1,-1];
+
       for (t = 1; t < 4; t++) {
         const PX = x + t * DX,
               PY = y + t * DY;
@@ -182,14 +232,11 @@ function AI(color, blocks) {
           break;
         }
       }
-      if (emptyCount === 1) {
-        const [PX, PY] = emptyCoord,
-              p = (color !== nowColor)? 1500 : 2000;
-        priority[PX][PY] += p;
-      }
+
+      if (emptyCount === 1)
+        feed(emptyCoord);
     });
   }
-
 
   //우선도가 가장 높은 것들을 찾고, 그중 하나를 무작위로 선택, 반환한다.
   for (x = 0; x < 15; x++)

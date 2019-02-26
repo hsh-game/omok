@@ -1,8 +1,9 @@
 //금수 목록을 얻는 함수.
-game.getBanedPosition = color => {
-  const board = game.stone.list;
+game.getBanedPosition = (color, board) => {
   let x, y, k, h, l, g, t, s,
       nowColor, result = [];
+
+  board = board || game.stone.list;
 
   if (!color || color !== BLACK) return result;
 
@@ -10,13 +11,13 @@ game.getBanedPosition = color => {
   // 이것은... 바로 육중한 6중 반복문이다.
   [6,7,8,9].forEach(n => {
     const LIMIT = 16 - n;
-    if (color === BLACK)
     for (x = 0; x < LIMIT; x++)
     for (y = 0; y < LIMIT; y++)
     for (h = 0; h < 2; h++)
     for (l = -1; l < 2; l++) {
       let emptyCount = 0,
           emptyCoords = [-1, -1];
+
       if (board[x][y] === BLACK)
       for (k = 0; k < n; k++) {
         const PX = x + k * h,
@@ -29,12 +30,14 @@ game.getBanedPosition = color => {
           emptyCount = -1;
           break;
         }
+
         if (game.stone.is(EMPTY, PX, PY)) {
           emptyCount++;
           emptyCoords[X] = PX;
           emptyCoords[Y] = PY;
         }
       }
+
       if (emptyCount === 1)
         result.push(emptyCoords);
     }
@@ -100,6 +103,8 @@ game.getBanedPosition = color => {
       reflectAndUpdate();
     }
   }
+  //3-4는 허용됨
+  // 알고리즘 다시 짤것!!!!!!
 
   return result;
 }

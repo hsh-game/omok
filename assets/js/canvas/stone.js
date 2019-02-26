@@ -6,10 +6,17 @@ game.stone.update = () => {
         r = display.width / 35;
   let color, x, y;
 
+  function arc() {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 2 * Math.PI);
+    return ctx;
+  }
+
   game.drawBoard();
+
   for (let i = 0; i < 15; i++)
-  for (let j = 0; j < 15; j++) {
-    if (!board[i][j]) continue;
+  for (let j = 0; j < 15; j++)
+  if (board[i][j]) {
 
     color = board[i][j];
 
@@ -17,14 +24,10 @@ game.stone.update = () => {
     y = display.padding + display.blockWidth * j;
 
     ctx.fillStyle = (color == WHITE)? "white" : "black";
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, 2 * Math.PI);
-    ctx.fill();
+    arc().fill();
 
     ctx.lineWidth = 5;
     ctx.strokeStyle = '#808080';
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, 2 * Math.PI);
-    ctx.stroke();
+    arc().stroke();
   }
 }
