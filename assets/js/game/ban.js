@@ -44,67 +44,42 @@ game.getBanedPosition = (color, board) => {
   });
 
   //흑돌 3-3, 4-4 금수
-  if (color === BLACK) {
-    let score = Array(15).fill().map(
-      () => Array(15).fill(0)
-    );
-
-    function reflectAndUpdate() {
-      score.forEach((col, ax) => {
-        col.forEach((item, ay) => {
-          if (!board[ax][ay] && item > 1)
-            result.push([ax,ay]);
-        });
-        col.fill(0);
-      });
+  //3-4는 허용됨
+  for (x = 0; x < 15; x++)
+  for (y = 0; y < 15; y++)
+  if (!board[x][y])
+  for (h = -1; h < 2; h++)
+  for (l = -1; l < 2; l++)
+  for (k = -1; k < 2; k++)
+  for (g = -1; g < 2; g++)
+  for (t = -1; t < 1; t++)
+  for (s = -1; s < 1; s++)
+  if ((h || l) && (k || g) && !(h === k && l === g) && !(t && h === -k) && !(s && l === -g)) {
+    //33금수
+    function move(p, dist) {
+      p += dist;
+      return p? p : p + dist;
     }
 
-    for (x = 1; x < 13; x++)
-    for (y = 1; y < 13; y++) {
-      for (s = 0; s < 2; s++) {
-        const copiedBoard = JSON.parse(
-                JSON.stringify(board)
-              ),
-              target = {
-                black: [0, 1, 2].concat(Array(s).fill(3)),
-                empty: [-1,-2,3,4].concat(Array(s).fill(5))
-              };
-
-        copiedBoard[x][y] = BLACK;
-
-        for (k = -1; k < 2; k++)
-        for (h = 0; h < 2; h++) {
-          if (
-            (k || h) && target.black.every(e =>
-              game.stone.is(
-                BLACK,
-                x + e * k,
-                y + e * h,
-                copiedBoard
-              )
-            ) && target.empty.every(e =>
-              game.stone.is(
-                EMPTY,
-                x + e * k,
-                y + e * h,
-                copiedBoard
-              )
-            )
-          ) target.black.forEach(e => {
-            for (g = 0; g < 2; g++) {
-              const PX = x + (e + g) * k,
-                    PY = y + (e + g) * h;
-              score[PX][PY]++;
-            }
-          });
-        }
-      }
-
-      reflectAndUpdate();
+    if (
+      [1,2].every(
+        e => game.stone.is(BLACK, x + move(e,t) * h, y + move(e,s) * l)
+             && game.stone.is(BLACK, x + move(e,t) * k, y + move(e,s) * g)
+      )
+      && [-1,-2,3,4].every(
+        e => game.stone.is(EMPTY, x + move(e,t) * h, y + move(e,s) * l)
+             && game.stone.is(EMPTY, x + move(e,t) * k, y + move(e,s) * g)
+      )
+      && [ [h,l], [k,g] ].every(
+        ([MX, MY]) => ![-3,5].every(
+          e => game.stone.is(BLACK, x + move(e,t) * MX, y + move(e,s) * MY)
+        )
+      )
+    ) {
+      result.push([x,y]);
+      [h, l, k, g, t, s] = Array(6).fill(Infinity);
     }
   }
-  //3-4는 허용됨
-  // 알고리즘 다시 짤것!!!!!!
 
   return result;
 }

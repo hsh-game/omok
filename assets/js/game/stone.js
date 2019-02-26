@@ -35,3 +35,9 @@ game.stone.is = (color, x, y, board) => {
   board = board || game.stone.list;
   return board[x] && board[x][y] === color;
 }
+
+//x,y 좌표에 돌의 색이 매칭되는지 확인.
+game.stone.isValid = (x, y, board) => {
+  board = board || game.stone.list;
+  return board[x] && y in board[x];
+}
