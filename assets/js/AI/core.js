@@ -239,5 +239,5 @@ function AI(color, blocks) {
     }
   }
 
-  return maxCoords.radom();
+  return maxCoords.random();
 }
