@@ -8,6 +8,17 @@
 
 //오목판의 오목돌들이 정의된 2차원 배열을 인자로 필요로 한다.
 function AI(color, blocks) {
+  const half8directions = [
+    //8방향의 반쪽.
+    //각각의 배열의 첫번째 요소는 X값의 증가량,
+    //두번째 요소는 Y값의 증가량으로 방위를 표현함.
+    //방향별로 순회하는 알고리즘을 위함인데,
+    //한 방향을 처리하면 반대방향도 같이 처리되기 때문.
+    [ 1, -1 ], // 북동쪽 (오른쪽 위)
+    [ 1,  0 ], // 동쪽 (오른쪽)
+    [ 1,  1 ], // 남동쪽 (오른쪽 아래)
+    [ 0,  1 ]  // 남쪽 (아래)
+  ];
   let blockAmount = 0,
       priority = Array(15).fill().map(() => Array(15).fill(0)),
       max = -Infinity,
@@ -25,9 +36,9 @@ function AI(color, blocks) {
   }
 
   function getReward() {
-    //0번은 상대의 돌에 대한 우선도(보상),
-    //1번은 자신의 돌에 대한 우선도(보상).
-    return isMyColor()? reward[0] : reward[1];
+    //0번은 자신의 돌에 대한 우선도(보상),
+    //1번은 상대의 돌에 대한 우선도(보상).
+    return isMyColor()? reward[1] : reward[0];
   }
 
   function feed(targetX, targetY) {
@@ -103,12 +114,7 @@ function AI(color, blocks) {
   } else {
     //끊어진 2목
     //XXO{X}OXX
-    [
-      [-1,  0],
-      [-1, -1],
-      [ 0, -1],
-      [ 1, -1]
-    ].forEach(([DX, DY]) => {
+    half8directions.forEach(([DX, DY]) => {
       if (
         (nowColor = game.stone.isStone(x + DX, y + DY))
         && game.stone.is(nowColor, x - DX, y - DY)
@@ -130,13 +136,7 @@ function AI(color, blocks) {
     //이어진 3목
     //XX{O}OOXX
     nowColor = blocks[x][y];
-    [
-      [ 1, -1 ],
-      [-1,  1 ],
-      [ 1,  1 ],
-      [ 1,  0 ],
-      [ 0,  1 ],
-    ].forEach(([AX, AY]) => {
+    half8directions.forEach(([AX, AY]) => {
       const conditions = [
         [1,2].map(e => [
           x + e * AX,
@@ -180,28 +180,28 @@ function AI(color, blocks) {
 
   //승리 확정수를 방어 또는 공격한다.
   //해당 수의 우선도를 상대일 경우 1500,
-  //자신일 경우 2000 만큼 올린다.
+  //자신일 경우 무한대 만큼 올린다.
   //승리 확정수 방어 1
-  setReward(1500, 2000);
+  setReward(1500, Infinity);
   for (x = 1; x < 13; x++)
   for (y = 1; y < 13; y++)
-  for (t = -1; t < 2; t++)
-  for (s = -1; s < 2; s++) {
-    const getPoint = e => [x + e * t, y + e * s];
+  if (blocks[x][y]) {
     nowColor = blocks[x][y];
-    if (
-      blocks[x][y]
-      && (t || s)
-      && [-1,4].map(getPoint).some(
-        ([PX,PY]) => game.stone.is(EMPTY, PX, PY)
-      )
-      && [1,2,3].map(getPoint).every(
-        ([PX,PY]) => game.stone.is(nowColor, PX, PY)
-      )
-    ) feed([
-      [ x + 4 * t, y + 4 * s ],
-      [ x - 1 * t, y - 1 * s ]
-    ]);
+    half8directions.forEach(([DX, DY]) => {
+      const getPoint = e => [x + e * DX, y + e * DY];
+      if (
+        (t || s)
+        && [-1,4].map(getPoint).some(
+          ([PX,PY]) => game.stone.is(EMPTY, PX, PY)
+        )
+        && [1,2,3].map(getPoint).every(
+          ([PX,PY]) => game.stone.is(nowColor, PX, PY)
+        )
+      ) feed([
+        [ x + 4 * DX, y + 4 * DY ],
+        [ x - 1 * DX, y - 1 * DY ]
+      ]);
+    });
   }
 
   //승리 확정수 방어2
@@ -209,32 +209,21 @@ function AI(color, blocks) {
   for (y = 0; y < 15; y++)
   if (blocks[x][y]) {
     nowColor = blocks[x][y];
-    [
-      [1,-1],
-      [1, 0],
-      [1, 1],
-      [0, 1]
-    ].forEach(([DX, DY]) => {
-      let emptyCount = 0,
-          emptyCoord = [-1,-1];
-
-      for (t = 1; t < 4; t++) {
-        const PX = x + t * DX,
-              PY = y + t * DY;
-        if (game.stone.is(EMPTY, PX, PY)) {
-          emptyCount++;
-          emptyCoord = [PX, PY];
-          continue;
-        }
-        if (emptyCount > 1) break;
-        if (!game.stone.is(nowColor, PX, PY)) {
-          emptyCount = Infinity;
-          break;
-        }
-      }
-
-      if (emptyCount === 1)
-        feed(emptyCoord);
+    half8directions.forEach(([DX, DY]) => {
+      let emptyCoord = [-1,-1];
+      if (
+        3 === [1,2,3,4].map(
+          e => [x + e * DX, y + e * DY]
+        ).filter(
+          ([PX, PY]) => {
+            if (
+              game.stone.is(nowColor, PX, PY)
+            ) return true;
+            emptyCoord = [PX, PY];
+            return false;
+          }
+        ).length
+      ) feed(emptyCoord);
     });
   }
 
@@ -250,7 +239,5 @@ function AI(color, blocks) {
     }
   }
 
-  const key = Math.floor(maxCoords.length * Math.random());
-
-  return maxCoords[key];
+  return maxCoords.radom();
 }
