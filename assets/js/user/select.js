@@ -112,21 +112,25 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   window.addEventListener('keydown', e => {
-    switch (e.key) {
-      case 'ArrowDown':
+    switch (e.key.toLowerCase().replace('arrow')) {
+      case 'down':
+      case 's':
         user.focus.coord[Y]++;
         break;
-      case 'ArrowUp':
+      case 'up':
+      case 'w':
         user.focus.coord[Y]--;
         break;
-      case 'ArrowLeft':
+      case 'left':
+      case 'a':
         user.focus.coord[X]--;
         break;
-      case 'ArrowRight':
+      case 'right':
+      case 'd':
         user.focus.coord[X]++;
         break;
       case ' ':
-      case 'Enter':
+      case 'enter':
         user.set();
         break;
       default:

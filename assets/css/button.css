@@ -1,4 +1,5 @@
 .button {
+  display: block;
   cursor: pointer;
   width: 80%;
   max-width: 250px;

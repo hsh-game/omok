@@ -46,6 +46,7 @@ a {
 #game-explain {
   display: none;
   width: 90%;
+  margin: 1rem auto;
 }
 
 #icons {

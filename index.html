@@ -27,6 +27,7 @@
 		<script src="assets/js/canvas/stone.js"></script>
 		<script src="assets/js/canvas/board.js"></script>
 		<script src="assets/js/user/select.js"></script>
+		<script src="assets/js/user/keyboard.js"></script>
 		<script src="assets/js/AI/core.js"></script>
 		<script src="assets/js/AI/test.js"></script>
 	</head>
@@ -36,8 +37,8 @@
 		<div id="half">
 			<div id="stone-color-select">
 				<p>선공 또는 후공을 선택하십시오.</p>
-				<div id="select-black" class="button">흑돌(선공)</div>
-				<div id="select-white" class="white button">백돌(후공)</div>
+				<div id="select-black" class="button">흑돌 (선공) (Q)</div>
+				<div id="select-white" class="white button">백돌 (후공) (W)</div>
 			</div>
 			<div id="control-keys">
 				<div class="fake move button"></div>
@@ -50,9 +51,11 @@
 				<div class="move button" id="move-down-btn"></div>
 				<div class="fake move button"></div>
 			</div>
-			<p id="game-explain">
-				위의 버튼 또는 키보드의 방향키와 엔터를 이용해 조작하세요!
-			</p>
+			<div id="game-explain">
+				<p>
+					WASD 또는 방향키로 돌을 놓을 곳을 정하고 스페이스바 또는 엔터키를 눌러 돌을 놓습니다.
+				</p>
+			</div>
 			<p>
 				이 게임은 <a href="https://namu.wiki/w/렌주" target="_blank">렌주룰</a>을 따릅니다.
 			</p>
