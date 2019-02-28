@@ -112,7 +112,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   window.addEventListener('keydown', e => {
-    switch (e.key.toLowerCase().replace('arrow')) {
+    switch (e.key.toLowerCase().replace('arrow', '')) {
       case 'down':
       case 's':
         user.focus.coord[Y]++;

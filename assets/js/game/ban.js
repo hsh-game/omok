@@ -1,4 +1,6 @@
 //금수 목록을 얻는 함수.
+game.banSave = null;
+game.banId = -1;
 game.getBanedPosition = (color, board) => {
   let x, y, k, h, l, g, t, s,
       nowColor, result = [];
@@ -6,6 +8,11 @@ game.getBanedPosition = (color, board) => {
   board = board || game.stone.list;
 
   if (!color || color !== BLACK) return result;
+
+  if (game.stone.id === game.banId)
+    return game.banSave;
+
+  game.banId = game.stone.id;
 
   //흑돌 6, 7, 8, 9목(장목) 금수 지정
   // 이것은... 바로 육중한 6중 반복문이다.
@@ -61,14 +68,23 @@ game.getBanedPosition = (color, board) => {
       return p? p : p + dist;
     }
 
+    function getPoint(e) {
+      return [
+        [x + move(e,t) * h, y + move(e,s) * l],
+        [x + move(e,t) * k, y + move(e,s) * g]
+      ];
+    }
+
     if (
-      [1,2].every(
-        e => game.stone.is(BLACK, x + move(e,t) * h, y + move(e,s) * l)
-             && game.stone.is(BLACK, x + move(e,t) * k, y + move(e,s) * g)
+      [1,2].map(getPoint).every(
+        points => points.every(
+          point => game.stone.is(BLACK, ...point)
+        )
       )
-      && [-1,-2,3,4].every(
-        e => game.stone.is(EMPTY, x + move(e,t) * h, y + move(e,s) * l)
-             && game.stone.is(EMPTY, x + move(e,t) * k, y + move(e,s) * g)
+      && [-1,-2,3,4].map(getPoint).every(
+        points => points.every(
+          point => game.stone.is(EMPTY, ...point)
+        )
       )
       && [ [h,l], [k,g] ].every(
         ([MX, MY]) => ![-3,5].every(
@@ -81,5 +97,5 @@ game.getBanedPosition = (color, board) => {
     }
   }
 
-  return result;
+  return game.banSave = result;
 }

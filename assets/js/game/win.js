@@ -1,4 +1,6 @@
 //해당 시점에 승리한 돌의 색을 리턴. 없으면 EMPTY리턴하는 함수.
+game.winnerSave = null;
+game.winnerId = -1;
 game.checkWin = () => {
   /*
     모든 돌 (stone.list[x][y])의 색이 x 축 또는 y 축 또는 대각선으로
@@ -6,6 +8,12 @@ game.checkWin = () => {
   */
   const board = game.stone.list;
   let color, x, y, k, h, l;
+
+  if (game.stone.id === game.winnerId)
+    return game.winnerSave;
+
+  game.winnerId = game.stone.id;
+
   for (x = 0; x < 15; x++)
   for (y = 0; y < 15; y++)
   if (board[x][y])
@@ -20,8 +28,10 @@ game.checkWin = () => {
         break;
       }
     }
-    if (color) return color;
+
+    if (color)
+      return game.winnerSave = color;
   }
 
-  return EMPTY;
+  return game.winnerSave = EMPTY;
 }

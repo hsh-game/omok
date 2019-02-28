@@ -4,8 +4,12 @@ game.stone = {};
 //바둑돌의 위치를 담을 2차원 배열.
 game.stone.list = [ /*[...],[...],...*/ ];
 
+//바둑판에 변화가 생길때마다 1씩 증가하는 식별자.
+game.stone.id = 0;
+
 //바둑돌들의 위치를 모두 초기화할 함수.
 game.stone.reset = () => {
+  game.stone.id++;
   for (let i = 0; i < 15; i++) {
     game.stone.list[i] = Array(15).fill(EMPTY);
   }
@@ -16,6 +20,7 @@ game.stone.reset();
 
 //x, y좌표에 착수하는 함수.
 game.stone.set = (color, x, y) => {
+  game.stone.id++;
   if (game.checkWin() || !game.getCanvas().elem) return;
 
   game.stone.list[x][y] = color;
