@@ -19,14 +19,6 @@ a {
   max-width: 85vmin;
 }
 
-@media screen and (min-width: 1020px) {
-  #half, #board {
-    display: inline-block;
-    width: 47.5%;
-    vertical-align: top;
-  }
-}
-
 #turn-alert,
 #how-to-play {
   display: none;
@@ -38,9 +30,15 @@ a {
 }
 
 #stone-color-select {
+  top: 3rem;
+  left: 1rem;
+  position: fixed;
   width: 90%;
+  max-width: 85vmin;
   margin: 1rem auto;
+  padding: 2.5rem 0;
   border: 3px solid #b5b5b5;
+  background: #323232;
 }
 
 #game-explain {

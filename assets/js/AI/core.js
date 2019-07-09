@@ -19,6 +19,7 @@ function AI(color, blocks) {
     [ 1,  1 ], // 남동쪽 (오른쪽 아래)
     [ 0,  1 ]  // 남쪽 (아래)
   ];
+  
   let blockAmount = 0,
       priority = Array(15).fill().map(() => Array(15).fill(0)),
       max = -Infinity,
@@ -66,7 +67,6 @@ function AI(color, blocks) {
   }
 
   if (blockAmount >= 15 * 15) {
-    alert("오목판이 모두 차서 AI가 선택할 수 없습니다.");
     throw new Error("Block exceeded");
   }
 

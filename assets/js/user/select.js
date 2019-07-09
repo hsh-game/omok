@@ -70,6 +70,8 @@ const user = {
 };
 
 window.addEventListener('DOMContentLoaded', () => {
+  const canvas = game.getCanvas().elem;
+
   user.focus.set();
 
   $('#set-btn').addEventListener('click', user.set, false);
@@ -77,9 +79,26 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function initGame(userColor) {
     user.color = userColor;
-    $('#game-explain').style.display = 'block';
     $('#stone-color-select').style.display = 'none';
-    $('#control-keys').style.display = 'grid';
+    $('#control-keys').style.display = 'block';
+  }
+
+  function boardTouchEvent(event) {
+    //터치 및 마우스 조작
+    const rect = canvas.getBoundingClientRect(),
+          ctx = canvas.getContext('2d'),
+          pixelRatio = canvas.width / canvas.offsetWidth,
+          px = pixelRatio * (event.x - rect.x),
+          py = pixelRatio * (event.y - rect.y),
+          ux = Math.floor(px / (canvas.width / 15)),
+          uy = Math.floor(py / (canvas.width / 15));
+
+    user.focus.coord = [ux, uy].map(
+      n => Math.max(0, Math.min(14, n))
+    );
+
+    checkFocus();
+    event.preventDefault();
   }
 
   $('#select-white').addEventListener('click', () => {
@@ -99,17 +118,17 @@ window.addEventListener('DOMContentLoaded', () => {
     user.focus.set();
   }
 
-  [
-    ['up',    Y, -1],
-    ['down',  Y, +1],
-    ['left',  X, -1],
-    ['right', X, +1]
-  ].forEach(([dir, target, change]) => {
-    $(`#move-${dir}-btn`).addEventListener('click', () => {
-      user.focus.coord[target] += change;
-      checkFocus();
-    }, false);
-  });
+  ~function resizeStonSelectElem() {
+    const target = $('#stone-color-select');
+
+    if (!resizeStonSelectElem.init) {
+      resizeStonSelectElem.init = true;
+      window.addEventListener('resize', resizeStonSelectElem);
+    }
+
+    target.style.left = (innerWidth - target.offsetWidth) / 2 + 'px';
+    target.style.top = (innerHeight - target.offsetHeight) / 3 + 'px';
+  }();
 
   window.addEventListener('keydown', e => {
     switch (e.key.toLowerCase().replace('arrow', '')) {
@@ -139,4 +158,15 @@ window.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     checkFocus();
   }, false);
+
+  canvas.addEventListener('touchmove', event => {
+    console.log(event);
+    event.preventDefault();
+    boardTouchEvent({
+      x: event.touches[0].pageX,
+      y: event.touches[0].pageY,
+    });
+  });
+
+  canvas.addEventListener('mousemove', boardTouchEvent);
 }, false);

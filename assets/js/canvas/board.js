@@ -1,6 +1,7 @@
 game.drawBoard = function () {
   let board = document.getElementById('board'),
       ctx = board.getContext('2d');
+
   const width = board.width,
         height = board.height,
         paddingScale = 25,
@@ -15,7 +16,6 @@ game.drawBoard = function () {
   //줄긋기
   ctx.lineWidth = 3;
   ctx.strokeStyle = 'black';
-
   ctx.beginPath();
 
   [

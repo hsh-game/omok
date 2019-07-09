@@ -12,6 +12,14 @@ game.stone.update = () => {
     return ctx;
   }
 
+  function getX(x) {
+    return display.padding + display.blockWidth * x;
+  }
+
+  function getY(y) {
+    return display.padding + display.blockWidth * y;
+  }
+
   game.drawBoard();
 
   for (let i = 0; i < 15; i++)
@@ -20,8 +28,8 @@ game.stone.update = () => {
 
     color = board[i][j];
 
-    x = display.padding + display.blockWidth * i;
-    y = display.padding + display.blockWidth * j;
+    x = getX(i);
+    y = getX(j);
 
     ctx.fillStyle = (color == WHITE)? "white" : "black";
     arc().fill();
@@ -29,5 +37,20 @@ game.stone.update = () => {
     ctx.lineWidth = 5;
     ctx.strokeStyle = '#808080';
     arc().stroke();
+  }
+
+  if (game.winnerMark) {
+    //승리지점 표시  
+    x = getX(game.winnerMark.start[X]);
+    y = getY(game.winnerMark.start[Y]);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    x = getX(game.winnerMark.end[X]);
+    y = getY(game.winnerMark.end[Y]);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = 'rgb(241, 76, 76)';
+    ctx.lineWidth = display.padding / 3;
+    ctx.lineCap = 'round';
+    ctx.stroke();
   }
 }
