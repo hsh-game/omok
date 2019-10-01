@@ -25,11 +25,9 @@ game.stone.update = () => {
   for (let i = 0; i < 15; i++)
   for (let j = 0; j < 15; j++)
   if (board[i][j]) {
-
     color = board[i][j];
-
     x = getX(i);
-    y = getX(j);
+    y = getY(j);
 
     ctx.fillStyle = (color == WHITE)? "white" : "black";
     arc().fill();
@@ -40,7 +38,7 @@ game.stone.update = () => {
   }
 
   if (game.winnerMark) {
-    //승리지점 표시  
+    //승리지점 표시
     x = getX(game.winnerMark.start[X]);
     y = getY(game.winnerMark.start[Y]);
     ctx.beginPath();

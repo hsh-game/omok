@@ -15,6 +15,7 @@ a {
 }
 
 #board {
+  cursor: none;
   max-width: 750px;
   max-width: 85vmin;
 }
