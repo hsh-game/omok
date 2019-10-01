@@ -61,7 +61,13 @@ game.getBanedPosition = (color, board) => {
   for (g = -1; g < 2; g++)
   for (t = -1; t < 1; t++)
   for (s = -1; s < 1; s++)
-  if ((h || l) && (k || g) && !(h === k && l === g) && !(t && h === -k) && !(s && l === -g)) {
+  if (
+    h || l &&
+    k || g &&
+    !(h === k && l === g) &&
+    !(t && h === -k) &&
+    !(s && l === -g)
+  ) {
     //33금수
     function move(p, dist) {
       p += dist;

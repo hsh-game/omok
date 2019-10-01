@@ -40,12 +40,14 @@ const user = {
     }
   },
 
-  set() {
+  async set() {
     //user.set
-    const AI_COLOR = (user.color == BLACK)? WHITE : BLACK,
-          X = 0, Y = 1;
+    const AI_COLOR = (user.color == BLACK)? WHITE : BLACK;
 
-    if (!user.color || game.stone.isStone(...user.focus.coord)) return;
+    if (
+      !user.color ||
+      game.stone.isStone(...user.focus.coord)
+    ) return;
 
     const IS_BANED = game.getBanedPosition(user.color)
                          .map(JSON.stringify)
@@ -58,13 +60,19 @@ const user = {
 
     game.stone.set(user.color, ...user.focus.coord);
     game.stone.set(AI_COLOR, ...AI(AI_COLOR, game.stone.list));
-    user.focus.set();
 
     let winner = game.checkWin();
+
+    user.focus.set();
+    game.stone.update();
+
     if (winner) {
-      setTimeout(() => {
-        alert("당신의 " + ((winner == user.color)? "승리":"패배") + "입니다.");
-      }, 100);
+      await wait(100);
+      alert(
+        "당신의 "
+        + (winner === user.color? "승리":"패배")
+        + "입니다."
+      );
     }
   }
 };
@@ -88,16 +96,24 @@ window.addEventListener('DOMContentLoaded', () => {
     const rect = canvas.getBoundingClientRect(),
           ctx = canvas.getContext('2d'),
           pixelRatio = canvas.width / canvas.offsetWidth,
+          blockSize = canvas.width / 15,
           px = pixelRatio * (event.x - rect.x),
           py = pixelRatio * (event.y - rect.y),
-          ux = Math.floor(px / (canvas.width / 15)),
-          uy = Math.floor(py / (canvas.width / 15));
+          ux = Math.floor(px / blockSize),
+          uy = Math.floor(py / blockSize),
+          coord = [ux, uy].map(
+            n => Math.max(0, Math.min(14, n))
+          );
 
-    user.focus.coord = [ux, uy].map(
-      n => Math.max(0, Math.min(14, n))
-    );
-
+    user.focus.coord = coord;
     checkFocus();
+
+    ctx.strokeStyle = game.stone.isStone(...coord)?
+                        '#3a7ff5' : '#eee';
+    ctx.beginPath();
+    ctx.arc(px, py, 12, 0, Math.PI2);
+    ctx.stroke();
+
     event.preventDefault();
   }
 
@@ -159,14 +175,14 @@ window.addEventListener('DOMContentLoaded', () => {
     checkFocus();
   }, false);
 
-  canvas.addEventListener('touchmove', event => {
-    console.log(event);
-    event.preventDefault();
+  canvas.addEventListener('touchmove', event =>
     boardTouchEvent({
       x: event.touches[0].pageX,
       y: event.touches[0].pageY,
-    });
-  });
+      preventDefault: () => event.preventDefault()
+    })
+  );
 
   canvas.addEventListener('mousemove', boardTouchEvent);
+  canvas.addEventListener('mouseup', () => user.set());
 }, false);

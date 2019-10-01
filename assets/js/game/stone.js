@@ -20,13 +20,13 @@ game.stone.reset();
 
 //x, y좌표에 착수하는 함수.
 game.stone.set = (color, x, y) => {
-  game.stone.id++;
   if (game.checkWin() || !game.getCanvas().elem) return;
 
   game.stone.list[x][y] = color;
   //game.stone.update will define in
   // [ assets/js/canvas/stone.js ]
   game.stone.update();
+  game.stone.id++;
 }
 
 //x,y 좌표에 돌이 존재하는지 불리언값으로 리턴하는 함수.
